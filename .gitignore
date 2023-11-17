@@ -14,3 +14,5 @@ mind_vis.egg-info/
 *.nii
 *.gz
 *.pth
+*.err
+HCP_download-master/HCP_DATA/

@@ -80,6 +80,8 @@ if __name__ == '__main__':
     root = args.root
     target = args.dataset
     model_path = os.path.join(root, 'pretrains', f'{target}', 'finetuned.pth')
+    # "results/fmri_finetune/27-10-2023-00-19-13/checkpoints/checkpoint.pth"
+    # 
   
     sd = torch.load(model_path, map_location='cpu')
     config = sd['config']

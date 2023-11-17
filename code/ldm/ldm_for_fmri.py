@@ -1,11 +1,11 @@
 import numpy as np
 import wandb
 import torch
-from dc_ldm.util import instantiate_from_config
+from ldm.util import instantiate_from_config
 from omegaconf import OmegaConf
 import torch.nn as nn
 import os
-from dc_ldm.models.diffusion.plms import PLMSSampler
+from ldm.models.diffusion.plms import PLMSSampler
 from einops import rearrange, repeat
 from torchvision.utils import make_grid
 from torch.utils.data import DataLoader
@@ -47,7 +47,7 @@ class cond_stage_model(nn.Module):
 class fLDM:
 
     def __init__(self, metafile, num_voxels, device=torch.device('cpu'),
-                 pretrain_root='../pretrains/ldm/label2img',
+                 pretrain_root='../pretrains/ldm/label2img-large',
                  logger=None, ddim_steps=250, global_pool=True, use_time_cond=True):
         self.ckp_path = os.path.join(pretrain_root, 'model.ckpt')
         self.config_path = os.path.join(pretrain_root, 'config.yaml') 

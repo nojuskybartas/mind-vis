@@ -126,13 +126,14 @@ def main(config):
     img_transform_train = transforms.Compose([
         normalize,
         random_crop(config.img_size-crop_pix, p=0.5),
-        transforms.Resize((256, 256)), 
+        transforms.Resize((config.img_size, config.img_size)),
         channel_last
     ])
     img_transform_test = transforms.Compose([
-        normalize, transforms.Resize((256, 256)), 
+        normalize, transforms.Resize((config.img_size, config.img_size)),
         channel_last
     ])
+    assert config.bold5000_subs == ["CSI1"]
     if config.dataset == 'GOD':
         fmri_latents_dataset_train, fmri_latents_dataset_test = create_Kamitani_dataset(config.kam_path, config.roi, config.patch_size, 
                 fmri_transform=fmri_transform, image_transform=[img_transform_train, img_transform_test], 
@@ -187,6 +188,7 @@ def get_args_parser():
     parser.add_argument('--precision', type=int)
     parser.add_argument('--accumulate_grad', type=int)
     parser.add_argument('--global_pool', type=bool)
+    parser.add_argument('--img_size', type=int)
 
     # diffusion sampling parameters
     parser.add_argument('--pretrain_gm_path', type=str)

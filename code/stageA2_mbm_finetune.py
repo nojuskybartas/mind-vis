@@ -134,7 +134,7 @@ def main(config):
         test_set.fmri = test_set.fmri[:, :num_voxels]
     print(f'Dataset size: {len(test_set)}')
     sampler = torch.utils.data.DistributedSampler(test_set) if torch.cuda.device_count() > 1 else torch.utils.data.RandomSampler(test_set) 
-    dataloader_hcp = DataLoader(test_set, batch_size=config.batch_size, sampler=sampler)
+    dataloader_hcp = DataLoader(test_set, batch_size=config.batch_size, sampler=sampler, num_workers=64)
 
     if torch.cuda.device_count() > 1:
         model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)

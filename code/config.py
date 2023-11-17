@@ -57,7 +57,7 @@ class Config_MBM_finetune(Config_MBM_finetune):
         self.output_path = self.root_path
         self.kam_path = os.path.join(self.root_path, 'data/Kamitani/npz')
         self.bold5000_path = os.path.join(self.root_path, 'data/BOLD5000')
-        self.dataset = 'GOD' # GOD  or BOLD5000
+        self.dataset = 'BOLD5000' # GOD  or BOLD5000
         self.pretrain_mbm_path = os.path.join(self.root_path, f'pretrains/{self.dataset}/fmri_encoder.pth') 
 
         self.include_nonavg_test = True
@@ -93,7 +93,7 @@ class Config_Generative_Model:
         # self.pretrain_gm_path = os.path.join(self.root_path, 'pretrains/ldm/text2img-large')
         # self.pretrain_gm_path = os.path.join(self.root_path, 'pretrains/ldm/layout2img')
         
-        self.dataset = 'GOD' # GOD or BOLD5000
+        self.dataset = 'BOLD5000' # GOD or BOLD5000
         self.kam_subs = ['sbj_3']
         self.bold5000_subs = ['CSI1']
         self.pretrain_mbm_path = os.path.join(self.root_path, f'pretrains/{self.dataset}/fmri_encoder.pth') 
