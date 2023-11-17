@@ -154,7 +154,7 @@ def get_similarity_metric(img1, img2, method='pair-wise', metric_name='mse', **k
         img1 = rearrange(img1, 'n c w h -> n w h c')
     if img2.shape[-1] != 3:
         img2 = rearrange(img2, 'n c w h -> n w h c')
-
+    
     if method == 'pair-wise':
         eval_procedure_func = pair_wise_score 
     elif method == 'n-way':
