@@ -17,4 +17,4 @@ cd /home/u538295/thesis/mind-vis
 
 # perform stage B - LDM finetuning:
 # python code/stageB_ldm_finetune.py --dataset BOLD5000 --pretrain_mbm_path results/fmri_finetune/27-10-2023-01-00-10/checkpoints/checkpoint.pth --pretrain_gm_path pretrains/ldm/text2img-large/model.ckpt --num_epoch 50 --batch_size 5
-python code/stageB_ldm_finetune.py --dataset BOLD5000 --num_epoch 500 --batch_size 5  --img_size 64
+python code/stageB_ldm_finetune.py --dataset BOLD5000 --num_epoch 100 --batch_size 5

@@ -204,6 +204,60 @@ def normalization(channels):
     """
     return GroupNorm32(32, channels)
 
+class CustomLSTMModule(nn.Module):
+    def __init__(self, input_size, hidden_size, output_size, context_dim, time_embed_dim):
+        super(CustomLSTMModule, self).__init__()
+        self.lstm = nn.LSTM(input_size=input_size, hidden_size=hidden_size)
+        self.linear1 = nn.Linear(hidden_size, time_embed_dim)
+        self.flatten = nn.Flatten()
+        self.linear2 = nn.Linear(context_dim, time_embed_dim, bias=True)
+        # self.gru = nn.GRU(input_size=input_size, hidden_size=hidden_size, batch_first=True)
+        # self.linear1 = nn.Linear(hidden_size, 1)
+        # self.flatten = nn.Flatten()
+        # self.linear2 = nn.Linear(context_dim, time_embed_dim, bias=True)  
+
+    def forward(self, x):
+        # Assuming x is of shape (batch, seq_len, input_size)
+        print(x.shape)          # here it's torch.Size([3, 77, 512])
+        lstm_out, _ = self.lstm(x)
+        print(lstm_out.shape)   # here it's torch.Size([3, 77, 38])
+
+        # out = lstm_out[:, -1]
+
+
+        # Use the last output of the sequence for each item in the batch
+        # lstm_out_last shape: [batch, hidden_size]
+        # out = lstm_out[:, -1, :]
+        # print(out.shape)
+
+        # Linear layer 1: Output shape [batch, context_dim]
+        out = self.linear1(out)
+        print(out.shape)
+        
+        # Linear layer 2: Reshape to get [batch, time_embed_dim]
+        # No need to flatten here as we are already handling a 2D tensor
+        # out = self.linear2(out)
+        # print(out.shape)
+
+        # Reshape to get the desired output shape [batch, 1, time_embed_dim]
+        out = out.unsqueeze(1)  # Adds a dimension of size 1 at the 1st position
+        print(out.shape)
+
+        print("---------------")
+
+        # here it needs to be [batch, 1, time_embed_dim])
+        # print(x.shape)
+        # gru_out, _ = self.gru(x)  # gru_out shape: [batch, seq_len, hidden_size]
+        # print(gru_out.shape)
+
+        # # Using the output of the last timestep
+        # gru_out_last = gru_out[:, -1, :]  # Shape: [batch, hidden_size]
+
+        # out = self.linear1(gru_out_last)  # Shape: [batch, 1]
+        # out = self.flatten(out)          # Shape: [batch, 1]
+        # out = self.linear2(out)          # Shape: [batch, time_embed_dim]
+        # print(out.shape)
+        return out
 
 # PyTorch 1.7 has SiLU, but we support PyTorch 1.5.
 class SiLU(nn.Module):

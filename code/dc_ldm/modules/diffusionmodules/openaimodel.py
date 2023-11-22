@@ -18,6 +18,7 @@ from dc_ldm.modules.diffusionmodules.util import (
     zero_module,
     normalization,
     timestep_embedding,
+    CustomLSTMModule
 )
 from dc_ldm.modules.attention import SpatialTransformer
 
@@ -202,7 +203,7 @@ class ResBlock(TimestepBlock):
 
         self.in_layers = nn.Sequential(
             normalization(channels),
-            nn.SiLU(),
+            nn.ReLU(),
             conv_nd(dims, channels, self.out_channels, 3, padding=1),
         )
 
@@ -218,7 +219,7 @@ class ResBlock(TimestepBlock):
             self.h_upd = self.x_upd = nn.Identity()
 
         self.emb_layers = nn.Sequential(
-            nn.SiLU(),
+            nn.ReLU(),
             linear(
                 emb_channels,
                 2 * self.out_channels if use_scale_shift_norm else self.out_channels,
@@ -226,7 +227,7 @@ class ResBlock(TimestepBlock):
         )
         self.out_layers = nn.Sequential(
             normalization(self.out_channels),
-            nn.SiLU(),
+            nn.ReLU(),
             nn.Dropout(p=dropout),
             zero_module(
                 conv_nd(dims, self.out_channels, self.out_channels, 3, padding=1)
@@ -513,7 +514,7 @@ class UNetModel(nn.Module):
         time_embed_dim = model_channels * 4
         self.time_embed = nn.Sequential(
             linear(model_channels, time_embed_dim),
-            nn.SiLU(),
+            nn.ReLU(),
             linear(time_embed_dim, time_embed_dim),
         )
 
@@ -521,13 +522,19 @@ class UNetModel(nn.Module):
             self.label_emb = nn.Embedding(num_classes, time_embed_dim)
             
         # self.time_embed_condtion = nn.Linear(context_dim, time_embed_dim, bias=False)
+        
         if use_time_cond:
             self.time_embed_condtion = nn.Sequential(
                 nn.Conv1d(77, 77//2, 1, bias=True),
                 nn.Conv1d(77//2, 1, 1, bias=True),
                 nn.Linear(context_dim, time_embed_dim, bias=True)
             ) if global_pool == False else nn.Linear(context_dim, time_embed_dim, bias=True)
-       
+        # if use_time_cond:
+        #     if global_pool == False:
+        #         self.time_embed_condtion = CustomLSTMModule(input_size=512, hidden_size=77//2, output_size=1, context_dim=context_dim, time_embed_dim=time_embed_dim)
+        #     else:
+        #         self.time_embed_condtion = nn.Linear(context_dim, time_embed_dim, bias=True)
+
         self.input_blocks = nn.ModuleList(
             [
                 TimestepEmbedSequential(
@@ -696,7 +703,7 @@ class UNetModel(nn.Module):
 
         self.out = nn.Sequential(
             normalization(ch),
-            nn.SiLU(),
+            nn.ReLU(),
             zero_module(conv_nd(dims, model_channels, out_channels, 3, padding=1)),
         )
         if self.predict_codebook_ids:
@@ -743,6 +750,7 @@ class UNetModel(nn.Module):
             emb = emb + self.label_emb(y)
         if self.use_time_cond: # add time conditioning
             c = self.time_embed_condtion(context)
+            print(c.shape)
             assert c.shape[1] == 1, f'found {c.shape}'
             emb = emb + torch.squeeze(c, dim=1)
 
@@ -813,7 +821,7 @@ class EncoderUNetModel(nn.Module):
         time_embed_dim = model_channels * 4
         self.time_embed = nn.Sequential(
             linear(model_channels, time_embed_dim),
-            nn.SiLU(),
+            nn.ReLU(),
             linear(time_embed_dim, time_embed_dim),
         )
 
@@ -910,7 +918,7 @@ class EncoderUNetModel(nn.Module):
         if pool == "adaptive":
             self.out = nn.Sequential(
                 normalization(ch),
-                nn.SiLU(),
+                nn.ReLU(),
                 nn.AdaptiveAvgPool2d((1, 1)),
                 zero_module(conv_nd(dims, ch, out_channels, 1)),
                 nn.Flatten(),
@@ -919,7 +927,7 @@ class EncoderUNetModel(nn.Module):
             assert num_head_channels != -1
             self.out = nn.Sequential(
                 normalization(ch),
-                nn.SiLU(),
+                nn.ReLU(),
                 AttentionPool2d(
                     (image_size // ds), ch, num_head_channels, out_channels
                 ),
@@ -934,7 +942,7 @@ class EncoderUNetModel(nn.Module):
             self.out = nn.Sequential(
                 nn.Linear(self._feature_size, 2048),
                 normalization(2048),
-                nn.SiLU(),
+                nn.ReLU(),
                 nn.Linear(2048, self.out_channels),
             )
         else:
