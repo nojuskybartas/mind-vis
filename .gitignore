@@ -16,3 +16,4 @@ mind_vis.egg-info/
 *.pth
 *.err
 HCP_download-master/HCP_DATA/
+pretrains/

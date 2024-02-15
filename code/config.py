@@ -89,7 +89,8 @@ class Config_Generative_Model:
         self.patch_size = 16
 
         # self.pretrain_gm_path = os.path.join(self.root_path, 'pretrains/ldm/semantic')
-        self.pretrain_gm_path = os.path.join(self.root_path, 'pretrains/ldm/label2img')
+        # self.pretrain_gm_path = os.path.join(self.root_path, 'pretrains/ldm/label2img')
+        self.pretrain_gm_path = os.path.join(self.root_path, 'pretrains/ldm/label2img_fresh')
         # self.pretrain_gm_path = os.path.join(self.root_path, 'pretrains/ldm/text2img-large')
         # self.pretrain_gm_path = os.path.join(self.root_path, 'pretrains/ldm/layout2img')
         

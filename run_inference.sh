@@ -6,8 +6,8 @@
 #SBATCH -e slurm.%N.%j.err # STDERR
 #SBATCH --gres=gpu:1
 
-source activate mind-vis
 cd /home/u538295/thesis/mind-vis
+source activate mind-vis
 
 # run inference:
-python code/gen_eval.py --dataset BOLD5000
+python code/gen_eval.py --dataset BOLD5000 --ldm_checkpoint_path results/generation/stilted-tree-58/checkpoint_best.pth

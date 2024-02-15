@@ -49,7 +49,7 @@ class DDPM(pl.LightningModule):
                  unet_config,
                  timesteps=1000,
                  beta_schedule="linear",
-                 loss_type="l2",
+                 loss_type="l2", #or l1
                  ckpt_path=None,
                  ignore_keys=[],
                  load_only_unet=False,
@@ -76,6 +76,7 @@ class DDPM(pl.LightningModule):
                  ddim_steps=300
                  ):
         super().__init__()
+        print(f"Using {loss_type} loss")
         assert parameterization in ["eps", "x0"], 'currently only supporting "eps" and "x0"'
         self.parameterization = parameterization
         print(f"{self.__class__.__name__}: Running in {self.parameterization}-prediction mode")

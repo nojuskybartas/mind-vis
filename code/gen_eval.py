@@ -52,6 +52,19 @@ def get_eval_metric(samples, avg=True):
             res = get_similarity_metric(pred_images, gt_images, method='pair-wise', metric_name=m)
             res_part.append(np.mean(res))
         res_list.append(np.mean(res_part))     
+    
+    # FID
+    res_part = []
+    for s in samples_to_run:
+        pred_images = [img[s] for img in samples]
+        pred_images = rearrange(np.stack(pred_images), 'n c h w -> n h w c')
+        res = get_similarity_metric(pred_images, gt_images, method='metrics-only', metric_name="fid")
+        res_part.append(np.mean(res))
+    res_list.append(np.mean(res_part)) 
+    metric_list.append('fid')
+    
+    # Top-1-class
+    # Top-1-class (max)
     res_part = []
     for s in samples_to_run:
         pred_images = [img[s] for img in samples]
@@ -61,8 +74,10 @@ def get_eval_metric(samples, avg=True):
         res_part.append(np.mean(res))
     res_list.append(np.mean(res_part))
     res_list.append(np.max(res_part))
+
     metric_list.append('top-1-class')
     metric_list.append('top-1-class (max)')
+    
     return res_list, metric_list
 
 def get_args_parser():
@@ -70,6 +85,7 @@ def get_args_parser():
     # project parameters
     parser.add_argument('--root', type=str, default='.')
     parser.add_argument('--dataset', type=str, default='GOD')
+    parser.add_argument('--ldm_checkpoint_path', type=str, default=None)
 
     return parser
 
@@ -79,18 +95,22 @@ if __name__ == '__main__':
     args = args.parse_args()
     root = args.root
     target = args.dataset
-    model_path = os.path.join(root, 'pretrains', f'{target}', 'finetuned.pth')
-    # "results/fmri_finetune/27-10-2023-00-19-13/checkpoints/checkpoint.pth"
+    model_path = args.ldm_checkpoint_path if args.ldm_checkpoint_path is not None else os.path.join(root, 'pretrains', f'{target}', 'finetuned.pth')
+    # model_path = os.path.join(root, 'results/generation/03-12-2023-17-03-49/checkpoint_best.pth')
+    # model_path = os.path.join(root, 'pretrains', f'{target}', 'finetuned.pth')
+    # "results/generation/03-12-2023-17-03-49/checkpoint_best.pth"
     # 
   
     sd = torch.load(model_path, map_location='cpu')
     config = sd['config']
+    # config.ddim_steps = 500
     # update paths
     config.root_path = root
     config.kam_path = os.path.join(root, 'data/Kamitani/npz')
     config.bold5000_path = os.path.join(root, 'data/BOLD5000')
     config.pretrain_mbm_path = os.path.join(root, 'pretrains', f'{target}', 'fmri_encoder.pth')
     config.pretrain_gm_path = os.path.join(root, 'pretrains/ldm/label2img')
+    # config.pretrain_gm_path = os.path.join(root, 'results/generation/03-12-2023-17-03-49/checkpoint_best.pth')
     print(config.__dict__)
 
     output_path = os.path.join(config.root_path, 'results', 'eval',  
@@ -115,7 +135,7 @@ if __name__ == '__main__':
         raise NotImplementedError
  
     num_voxels = dataset_test.num_voxels
-    print(len(dataset_test))
+    print(f"Test dataset length: {len(dataset_test)}")
     # prepare pretrained mae 
     pretrain_mbm_metafile = torch.load(config.pretrain_mbm_path, map_location='cpu')
     # create generateive model
@@ -136,6 +156,7 @@ if __name__ == '__main__':
     wandb.log({f'summary/samples_test': wandb.Image(grid_imgs)})
     metric, metric_list = get_eval_metric(samples, avg=True)
     metric_dict = {f'summary/pair-wise_{k}':v for k, v in zip(metric_list[:-2], metric[:-2])}
+    metric_dict[f'summary/{metric_list[-3]}'] = metric[-3]
     metric_dict[f'summary/{metric_list[-2]}'] = metric[-2]
     metric_dict[f'summary/{metric_list[-1]}'] = metric[-1]
     print(metric_dict)

@@ -98,7 +98,7 @@ class fLDM:
         self.model.freeze_first_stage()
 
         self.model.learning_rate = lr1
-        self.model.train_cond_stage_only = True
+        self.model.train_cond_stage_only = False
         self.model.eval_avg = config.eval_avg
         trainers.fit(self.model, dataloader, val_dataloaders=test_loader)
 
