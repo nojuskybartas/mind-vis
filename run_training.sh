@@ -13,4 +13,4 @@ source activate mind-vis
 # python code/stageA2_mbm_finetune.py --dataset BOLD5000 --num_epoch 100
 
 # perform stage B - LDM finetuning:
-python code/stageB_ldm_finetune.py --dataset BOLD5000 --num_epoch 500 --batch_size 25
+python code/stageB_ldm_finetune.py --dataset BOLD5000 --num_epoch 500 --batch_size 25 --loss_function l1 --activation_function relu

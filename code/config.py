@@ -88,11 +88,7 @@ class Config_Generative_Model:
         self.roi = 'VC'
         self.patch_size = 16
 
-        # self.pretrain_gm_path = os.path.join(self.root_path, 'pretrains/ldm/semantic')
-        # self.pretrain_gm_path = os.path.join(self.root_path, 'pretrains/ldm/label2img')
         self.pretrain_gm_path = os.path.join(self.root_path, 'pretrains/ldm/label2img_fresh')
-        # self.pretrain_gm_path = os.path.join(self.root_path, 'pretrains/ldm/text2img-large')
-        # self.pretrain_gm_path = os.path.join(self.root_path, 'pretrains/ldm/layout2img')
         
         self.dataset = 'BOLD5000' # GOD or BOLD5000
         self.kam_subs = ['sbj_3']
@@ -121,4 +117,11 @@ class Config_Generative_Model:
         # resume check util
         self.model_meta = None
         self.checkpoint_path = None # os.path.join(self.root_path, 'results/generation/25-08-2022-08:02:55/checkpoint.pth')
+
+        # Activation functions
+        self.activation_function = "silu"  # 'relu' or 'silu'
+        self.activation_function_conditioning = None  # 'relu' or 'silu' or None
+
+        # Loss functions
+        self.loss_function = "l2"  # 'l1' or 'l2'
         
